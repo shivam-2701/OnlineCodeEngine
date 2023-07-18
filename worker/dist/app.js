@@ -11,7 +11,7 @@ const extensions = {
 const runCode = async (apiBody, channel, msg) => {
     try {
         client.set(apiBody.folder.toString(), "Processing");
-        const command = `docker run --rm --mount type=bind,source=.\\temp,target=/app,readonly=false -t compiler:v7a ${extensions[apiBody.lang]} ${apiBody.folder}/source.${extensions[apiBody.lang]} 5`;
+        const command = `docker run --rm --mount type=bind,source=./temp,target=/app,readonly=false -t compiler:v7a ${extensions[apiBody.lang]} ${apiBody.folder}/source.${extensions[apiBody.lang]} 5`;
         await fs.promises.writeFile(`./temp/${apiBody.folder}/output.txt`, "");
         const output = await execute(command);
         const data = await fs.promises.readFile(`./temp/${apiBody.folder}/output.txt`, "utf-8");
