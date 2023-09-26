@@ -51,7 +51,7 @@ export const getResult = async (req: Request, res: Response) => {
       return res.json({ status: "Processing" });
     } else {
       status = JSON.parse(status);
-      return res.json(successResponse(status));
+      return res.json(successResponse(status!));
     }
   } catch (error) {
     console.log(error);
