@@ -48,8 +48,8 @@ export const createSession = async (req, res) => {
             })
                 .end();
         }
-        const passwordHash = authentication(user.authentication.salt, password);
-        if (user.authentication.password !== passwordHash) {
+        const passwordHash = authentication(user.authentication?.salt, password);
+        if (user.authentication?.password !== passwordHash) {
             return res
                 .status(422)
                 .json({

@@ -26,10 +26,12 @@ const runCode = async (apiBody, channel, msg) => {
     );
 
     let result = {
+      lang: apiBody.lang,
       output: data,
       stderr: output.stderr,
       status: output.stdout,
       submission_id: apiBody.folder,
+      src: apiBody.src,
     };
 
     console.log(result);
@@ -48,7 +50,7 @@ export const createFiles = async (apiBody, ch, msg) => {
     await fs.promises.mkdir(`./temp/${apiBody.folder}`);
     await fs.promises.writeFile(
       `./temp/${apiBody.folder}/input.txt`,
-      apiBody.input
+      apiBody.input ?? ""
     );
     await fs.promises.writeFile(
       `./temp/${apiBody.folder}/source.${extensions[apiBody.lang]}`,

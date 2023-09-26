@@ -1,6 +1,8 @@
 import express, { Response, Request } from "express";
 import { randomBytes } from "crypto";
 import { sendMessage } from "../config/rabbitmq.js";
+import { SubmissionModel } from "../models/submission.js";
+
 import {
   errorResponse,
   successResponse,
@@ -50,7 +52,29 @@ export const getResult = async (req: Request, res: Response) => {
     } else if (status == "Processing") {
       return res.json({ status: "Processing" });
     } else {
-      status = JSON.parse(status);
+      const responseObject
+        : {
+          output: string,
+          stderr: string,
+          status: string,
+          submission_id:
+          string, lang:
+          string,
+          src: string
+        } = JSON.parse(status);
+      console.log(status);
+      console.log(responseObject);
+      const submission = await SubmissionModel.create({
+        input: "",
+        error: responseObject.stderr,
+        lang: responseObject.lang,
+        output: responseObject.output,
+        src: responseObject.src,
+        user: req.user
+      });
+
+      console.log(submission);
+
       return res.json(successResponse(status!));
     }
   } catch (error) {

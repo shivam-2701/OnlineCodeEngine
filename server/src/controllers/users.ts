@@ -57,9 +57,9 @@ export const createSession = async (req: Request, res: Response) => {
         .end();
     }
 
-    const passwordHash = authentication(user.authentication.salt, password);
+    const passwordHash = authentication(user.authentication?.salt!, password);
 
-    if (user.authentication.password !== passwordHash) {
+    if (user.authentication?.password! !== passwordHash) {
       return res
         .status(422)
         .json({
@@ -70,7 +70,7 @@ export const createSession = async (req: Request, res: Response) => {
 
     const JWTtoken = jwt.sign(
       { username: user.username, id: user._id, emial: user.email },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET!
     );
 
     res

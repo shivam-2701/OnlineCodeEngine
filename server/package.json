@@ -17,6 +17,7 @@
   "type": "module",
   "devDependencies": {
     "@types/amqplib": "^0.10.1",
+    "@types/cors": "^2.8.14",
     "@types/express": "^4.17.17",
     "@types/node": "^20.4.2",
     "@types/send": "^0.17.1",

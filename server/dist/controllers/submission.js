@@ -1,5 +1,6 @@
 import { randomBytes } from "crypto";
 import { sendMessage } from "../config/rabbitmq.js";
+import { SubmissionModel } from "../models/submission.js";
 import { errorResponse, successResponse, getFromRedis, } from "../helper/utils.js";
 const lang = ["cpp", "javac", "python"];
 export const submitCode = async (req, res) => {
@@ -43,7 +44,18 @@ export const getResult = async (req, res) => {
             return res.json({ status: "Processing" });
         }
         else {
-            status = JSON.parse(status);
+            const responseObject = JSON.parse(status);
+            console.log(status);
+            console.log(responseObject);
+            const submission = await SubmissionModel.create({
+                input: "",
+                error: responseObject.stderr,
+                lang: responseObject.lang,
+                output: responseObject.output,
+                src: responseObject.src,
+                user: req.user
+            });
+            console.log(submission);
             return res.json(successResponse(status));
         }
     }

@@ -18,9 +18,11 @@ export const successResponse = (data: string) => {
   };
 };
 
-export const getFromRedis = async (key) => {
+export const getFromRedis = async (key: any) => {
   try {
-    return await client.get(key);
+    const value = await client.get(key);
+    console.log(value);
+    return value;
   } catch (err) {
     console.log("Error in getKey:server", err);
     return null;

@@ -8,6 +8,14 @@ const userSchema = new Schema({
         type: String,
         required: true,
     },
+    submissions: [{
+            type: Schema.Types.ObjectId,
+            ref: "Submission",
+        }],
+    authoredProblems: [{
+            type: Schema.Types.ObjectId,
+            ref: "Problem",
+        }],
     authentication: {
         password: {
             type: String,
@@ -20,12 +28,6 @@ const userSchema = new Schema({
             select: false,
         },
     },
-    // submission: [
-    //   {
-    //     type: Schema.Types.ObjectId,
-    //     ref: "",
-    //   },
-    // ],
 });
 export const UserModel = mongoose.model("User", userSchema);
 export const getUsers = () => UserModel.find();

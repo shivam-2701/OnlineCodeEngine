@@ -1,7 +1,7 @@
 import crypto from "crypto";
 import { config } from "dotenv";
 config();
-const SECRET = process.env.SECRET;
+const SECRET = process.env.SECRET!;
 
 export const authentication = (salt: string, password: string): string => {
   return crypto
