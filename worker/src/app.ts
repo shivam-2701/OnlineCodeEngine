@@ -16,6 +16,10 @@ const runCode = async (apiBody, channel, msg) => {
   const absolutePath = path.resolve('./temp');
   const command = `docker run --rm --mount type=bind,source=${absolutePath},target=/app,readonly=false -t compiler:v7a ${extensions[apiBody.lang]
       } ${apiBody.folder}/source.${extensions[apiBody.lang]} 5`;
+    client.set(apiBody.folder.toString(), "Processing");
+    const command = `docker run --rm --mount type=bind,source=./temp,target=/app,readonly=false -t compiler:v7a ${
+      extensions[apiBody.lang]
+    } ${apiBody.folder}/source.${extensions[apiBody.lang]} 5`;
     await fs.promises.writeFile(`./temp/${apiBody.folder}/output.txt`, "");
     const output: Record<string, any> = await execute(command);
     const data = await fs.promises.readFile(
