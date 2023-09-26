@@ -27,7 +27,7 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
-    "start": "nodemon app.js",
+    "start": "tsc && nodemon app.js",
     "dev": "tsc --w"
   },
   "keywords": [],

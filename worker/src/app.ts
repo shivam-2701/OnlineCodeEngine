@@ -2,7 +2,7 @@ import fs from "fs";
 import "./config/rabbitmq.js";
 import { client } from "./config/redis.js";
 import { deleteFolder, execute } from "./utils.js";
-
+import path from "path";
 const extensions = {
   cpp: "cpp",
   c: "c",
@@ -12,10 +12,10 @@ const extensions = {
 
 const runCode = async (apiBody, channel, msg) => {
   try {
-    client.set(apiBody.folder.toString(), "Processing");
-    const command = `docker run --rm --mount type=bind,source=.\\temp,target=/app,readonly=false -t compiler:v7a ${
-      extensions[apiBody.lang]
-    } ${apiBody.folder}/source.${extensions[apiBody.lang]} 5`;
+  client.set(apiBody.folder.toString(), "Processing");
+  const absolutePath = path.resolve('./temp');
+  const command = `docker run --rm --mount type=bind,source=${absolutePath},target=/app,readonly=false -t compiler:v7a ${extensions[apiBody.lang]
+      } ${apiBody.folder}/source.${extensions[apiBody.lang]} 5`;
     await fs.promises.writeFile(`./temp/${apiBody.folder}/output.txt`, "");
     const output: Record<string, any> = await execute(command);
     const data = await fs.promises.readFile(
@@ -46,7 +46,7 @@ export const createFiles = async (apiBody, ch, msg) => {
     await fs.promises.mkdir(`./temp/${apiBody.folder}`);
     await fs.promises.writeFile(
       `./temp/${apiBody.folder}/input.txt`,
-      apiBody.input
+      apiBody.input ?? ""
     );
     await fs.promises.writeFile(
       `./temp/${apiBody.folder}/source.${extensions[apiBody.lang]}`,

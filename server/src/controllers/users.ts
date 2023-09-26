@@ -70,7 +70,7 @@ export const createSession = async (req: Request, res: Response) => {
 
     const JWTtoken = jwt.sign(
       { username: user.username, id: user._id, emial: user.email },
-      process.env.JWT_SECRET
+      process.env.JWT_SECRET,
     );
 
     res

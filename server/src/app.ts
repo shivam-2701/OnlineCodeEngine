@@ -1,3 +1,5 @@
+import { createServer } from "https";
+import { readFileSync } from "fs";
 import express, { Express, Request, Response } from "express";
 import mongoose, { set } from "mongoose";
 import cors from "cors";
@@ -21,8 +23,17 @@ app.use("/", router);
 setupDbConnection();
 setupPassportJWT();
 
+const options = {
+  key: readFileSync("./server.key"),
+  cert: readFileSync("./server.cert"),
+};
+
+createServer(options, app).listen(port, () => console.log("Server running on port " + port));
+
+/*
 app.listen(port, () => {
   console.log(
     `Typescript!!!! Server is running on port http://localhost:${port}`
   );
-});
+  });
+*/
