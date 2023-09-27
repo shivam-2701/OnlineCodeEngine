@@ -15,6 +15,16 @@ export const successResponse = (data) => {
         data: data,
     };
 };
+export const deleteFromRedis = async (key) => {
+    try {
+        const status = await client.del(key);
+        return status === 1;
+    }
+    catch (error) {
+        console.log("Error in deleteKey:server", error);
+        return false;
+    }
+};
 export const getFromRedis = async (key) => {
     try {
         const value = await client.get(key);

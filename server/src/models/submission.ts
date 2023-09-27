@@ -27,6 +27,10 @@ const submissionSchema = new Schema({
     problemId: {
         type: Schema.Types.ObjectId,
         ref: "Problem",
+    },
+    submissionId: {
+        type: String,
+        required: true,
     }
 }, {
     timestamps: true,

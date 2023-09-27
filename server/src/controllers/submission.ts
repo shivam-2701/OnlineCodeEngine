@@ -7,9 +7,12 @@ import {
   errorResponse,
   successResponse,
   getFromRedis,
+  deleteFromRedis,
 } from "../helper/utils.js";
 
 const lang = ["cpp", "javac", "python"];
+
+// Controller for submitting the code
 
 export const submitCode = async (req: Request, res: Response) => {
   try {
@@ -17,10 +20,8 @@ export const submitCode = async (req: Request, res: Response) => {
       src: req.body.src,
       input: req.body.stdin,
       lang: req.body.lang,
-      // 'timeout':req.body.timeout,
       folder: randomBytes(10).toString("hex"),
     };
-    // console.log("Submission Controller", data);
     if (!lang.includes(data.lang)) {
       res
         .status(400)
@@ -41,12 +42,28 @@ export const submitCode = async (req: Request, res: Response) => {
   }
 };
 
+
+// Controller for fetching submission result
+
 export const getResult = async (req: Request, res: Response) => {
   try {
     let key = req.params.id;
 
+    const existingSubmission = await SubmissionModel.findOne({ submissionId: key });
+    if (existingSubmission) {
+      console.log(existingSubmission);
+      return res.json(successResponse(
+        {
+          src: existingSubmission.src,
+          lang: existingSubmission.lang,
+          output: existingSubmission.output,
+          stderr: existingSubmission.error,
+          submission_id: existingSubmission.submissionId,
+          input: existingSubmission.input,
+        }
+      ));
+    }
     let status = await getFromRedis(key);
-
     if (status == null) {
       return res.json({ status: "Queued" });
     } else if (status == "Processing") {
@@ -57,25 +74,29 @@ export const getResult = async (req: Request, res: Response) => {
           output: string,
           stderr: string,
           status: string,
-          submission_id:
-          string, lang:
-          string,
+          submission_id: string,
+          lang: string,
           src: string
         } = JSON.parse(status);
-      console.log(status);
-      console.log(responseObject);
+      const removalResponse = await deleteFromRedis(key);
+      console.log(removalResponse);
       const submission = await SubmissionModel.create({
         input: "",
         error: responseObject.stderr,
         lang: responseObject.lang,
         output: responseObject.output,
         src: responseObject.src,
-        user: req.user
+        user: req.user,
+        submissionId: key,
       });
-
-      console.log(submission);
-
-      return res.json(successResponse(status!));
+      return res.json(successResponse({
+        src: submission.src,
+        lang: submission.lang,
+        output: submission.output,
+        stderr: submission.error,
+        submission_id: submission.submissionId,
+        input: submission.input,
+      }));
     }
   } catch (error) {
     console.log(error);
