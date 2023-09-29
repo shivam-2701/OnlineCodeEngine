@@ -10,7 +10,7 @@ import {
   deleteFromRedis,
 } from "../helper/utils.js";
 
-const lang = ["cpp", "javac", "python"];
+const lang = ["cpp", "java", "python"];
 
 // Controller for submitting the code
 
@@ -42,26 +42,27 @@ export const submitCode = async (req: Request, res: Response) => {
   }
 };
 
-
 // Controller for fetching submission result
 
 export const getResult = async (req: Request, res: Response) => {
   try {
     let key = req.params.id;
 
-    const existingSubmission = await SubmissionModel.findOne({ submissionId: key });
+    const existingSubmission = await SubmissionModel.findOne({
+      submissionId: key,
+    });
     if (existingSubmission) {
       console.log(existingSubmission);
-      return res.json(successResponse(
-        {
+      return res.json(
+        successResponse({
           src: existingSubmission.src,
           lang: existingSubmission.lang,
           output: existingSubmission.output,
           stderr: existingSubmission.error,
           submission_id: existingSubmission.submissionId,
           input: existingSubmission.input,
-        }
-      ));
+        })
+      );
     }
     let status = await getFromRedis(key);
     if (status == null) {
@@ -69,15 +70,14 @@ export const getResult = async (req: Request, res: Response) => {
     } else if (status == "Processing") {
       return res.json({ status: "Processing" });
     } else {
-      const responseObject
-        : {
-          output: string,
-          stderr: string,
-          status: string,
-          submission_id: string,
-          lang: string,
-          src: string
-        } = JSON.parse(status);
+      const responseObject: {
+        output: string;
+        stderr: string;
+        status: string;
+        submission_id: string;
+        lang: string;
+        src: string;
+      } = JSON.parse(status);
       const removalResponse = await deleteFromRedis(key);
       console.log(removalResponse);
       const submission = await SubmissionModel.create({
@@ -89,14 +89,16 @@ export const getResult = async (req: Request, res: Response) => {
         user: req.user,
         submissionId: key,
       });
-      return res.json(successResponse({
-        src: submission.src,
-        lang: submission.lang,
-        output: submission.output,
-        stderr: submission.error,
-        submission_id: submission.submissionId,
-        input: submission.input,
-      }));
+      return res.json(
+        successResponse({
+          src: submission.src,
+          lang: submission.lang,
+          output: submission.output,
+          stderr: submission.error,
+          submission_id: submission.submissionId,
+          input: submission.input,
+        })
+      );
     }
   } catch (error) {
     console.log(error);
