@@ -94,6 +94,10 @@ export const createSession = async (req: Request, res: Response) => {
       .cookie("refresh", REFRESH_TOKEN, { httpOnly: true })
       .json({
         message: "Login successfully",
+        user: {
+          email: user.email,
+          username: user.username,
+        },
         accessToken: JWTtoken,
       })
       .end();
@@ -134,6 +138,10 @@ export const refreshToken = async (req: Request, res: Response) => {
 
     return res.json({
       message: "Login successfully",
+      user: {
+        email: user.email,
+        username: user.username,
+      },
       accessToken: accessToken,
     });
   } catch (error) {
