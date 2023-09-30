@@ -1,5 +1,5 @@
 import { Router, Response, Request } from "express";
-import { signup, createSession } from "../controllers/users.js";
+import { signup, createSession, refreshToken } from "../controllers/users.js";
 import submissionRouter from "./submission.js";
 const router = Router();
 
@@ -8,7 +8,7 @@ router.post("/signup", signup);
 
 router.post("/create-session", createSession);
 
-router.post("/refresh");
+router.post("/refresh", refreshToken);
 
 router.use("/", submissionRouter);
 

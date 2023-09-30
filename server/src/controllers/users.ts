@@ -3,8 +3,12 @@ import { UserModel, createUser, getUserByEmail } from "../models/users.js";
 import { authentication, random } from "../helper/index.js";
 import { config } from "dotenv";
 config();
-import jwt from "jsonwebtoken";
-
+import jwt, { JwtPayload } from "jsonwebtoken";
+export type UserToken = {
+  username: string;
+  email: string;
+  id: string;
+};
 export const signup = async (req: Request, res: Response) => {
   try {
     const { email, username, password } = req.body;
@@ -76,7 +80,7 @@ export const createSession = async (req: Request, res: Response) => {
       }
     );
     const REFRESH_TOKEN = jwt.sign(
-      { username: user.username, id: user._id, emial: user.email },
+      { username: user.username, id: user._id, email: user.email },
       process.env.JWT_REFRESH_SECRET!,
       {
         expiresIn: "7d",
@@ -85,11 +89,12 @@ export const createSession = async (req: Request, res: Response) => {
 
     user.authentication!.refreshToken = REFRESH_TOKEN;
     await user.save();
+
     res
+      .cookie("refresh", REFRESH_TOKEN, { httpOnly: true })
       .json({
         message: "Login successfully",
         accessToken: JWTtoken,
-        refreshToken: REFRESH_TOKEN,
       })
       .end();
   } catch (error) {
@@ -100,4 +105,38 @@ export const createSession = async (req: Request, res: Response) => {
   }
 };
 
-export const refreshToken = async (req: Request, res: Response) => {};
+export const refreshToken = async (req: Request, res: Response) => {
+  const cookies = req.cookies;
+  if (!cookies?.refresh) return res.sendStatus(401);
+
+  const refreshToken = cookies.refresh as string;
+
+  try {
+    const user = await UserModel.findOne({
+      "authentication.refreshToken": refreshToken,
+    });
+
+    if (!user) return res.sendStatus(403);
+    const decoded = jwt.verify(
+      refreshToken,
+      process.env.JWT_REFRESH_SECRET!
+    ) as JwtPayload;
+    if (user.username !== decoded.username) {
+      return res.sendStatus(403);
+    }
+    const accessToken = jwt.sign(
+      { username: user.username, id: user._id, emial: user.email },
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "30s",
+      }
+    );
+
+    return res.json({
+      message: "Login successfully",
+      accessToken: accessToken,
+    });
+  } catch (error) {
+    return res.sendStatus(403);
+  }
+};
