@@ -45,7 +45,7 @@ export const createSession = async (req: Request, res: Response) => {
   try {
     const { email, password } = req.body;
     const user = await getUserByEmail(email).select(
-      " +authentication.salt +authentication.password"
+      " +authentication.salt +authentication.password +authentication.refreshToken"
     );
 
     if (!user) {
@@ -70,13 +70,26 @@ export const createSession = async (req: Request, res: Response) => {
 
     const JWTtoken = jwt.sign(
       { username: user.username, id: user._id, emial: user.email },
-      process.env.JWT_SECRET!
+      process.env.JWT_SECRET!,
+      {
+        expiresIn: "30s",
+      }
+    );
+    const REFRESH_TOKEN = jwt.sign(
+      { username: user.username, id: user._id, emial: user.email },
+      process.env.JWT_REFRESH_SECRET!,
+      {
+        expiresIn: "7d",
+      }
     );
 
+    user.authentication!.refreshToken = REFRESH_TOKEN;
+    await user.save();
     res
       .json({
         message: "Login successfully",
-        "bearer-token": JWTtoken,
+        accessToken: JWTtoken,
+        refreshToken: REFRESH_TOKEN,
       })
       .end();
   } catch (error) {
@@ -86,3 +99,5 @@ export const createSession = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const refreshToken = async (req: Request, res: Response) => {};

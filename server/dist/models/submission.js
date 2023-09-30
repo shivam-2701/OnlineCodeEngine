@@ -6,7 +6,7 @@ const submissionSchema = new Schema({
     },
     lang: {
         type: String,
-        enum: ["cpp", "javac", "python"],
+        enum: ["cpp", "java", "python"],
         required: true,
     },
     input: {
@@ -30,9 +30,9 @@ const submissionSchema = new Schema({
     submissionId: {
         type: String,
         required: true,
-    }
+    },
 }, {
     timestamps: true,
 });
-export const SubmissionModel = mongoose.model('Submission', submissionSchema);
+export const SubmissionModel = mongoose.model("Submission", submissionSchema);
 //# sourceMappingURL=submission.js.map

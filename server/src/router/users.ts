@@ -8,6 +8,8 @@ router.post("/signup", signup);
 
 router.post("/create-session", createSession);
 
+router.post("/refresh");
+
 router.use("/", submissionRouter);
 
 export default router;

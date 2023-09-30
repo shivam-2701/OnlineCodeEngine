@@ -2,7 +2,7 @@ import { randomBytes } from "crypto";
 import { sendMessage } from "../config/rabbitmq.js";
 import { SubmissionModel } from "../models/submission.js";
 import { errorResponse, successResponse, getFromRedis, deleteFromRedis, } from "../helper/utils.js";
-const lang = ["cpp", "javac", "python"];
+const lang = ["cpp", "java", "python"];
 // Controller for submitting the code
 export const submitCode = async (req, res) => {
     try {
@@ -36,7 +36,9 @@ export const submitCode = async (req, res) => {
 export const getResult = async (req, res) => {
     try {
         let key = req.params.id;
-        const existingSubmission = await SubmissionModel.findOne({ submissionId: key });
+        const existingSubmission = await SubmissionModel.findOne({
+            submissionId: key,
+        });
         if (existingSubmission) {
             console.log(existingSubmission);
             return res.json(successResponse({
@@ -57,24 +59,25 @@ export const getResult = async (req, res) => {
         }
         else {
             const responseObject = JSON.parse(status);
-            const removalResponse = await deleteFromRedis(key);
-            console.log(removalResponse);
-            const submission = await SubmissionModel.create({
-                input: "",
-                error: responseObject.stderr,
+            await deleteFromRedis(key);
+            if (req.body.submission === true) {
+                const submission = await SubmissionModel.create({
+                    input: "",
+                    error: responseObject.stderr,
+                    lang: responseObject.lang,
+                    output: responseObject.output,
+                    src: responseObject.src,
+                    user: req.user,
+                    submissionId: key,
+                });
+                console.log(submission);
+            }
+            return res.json(successResponse({
+                src: responseObject.src,
                 lang: responseObject.lang,
                 output: responseObject.output,
-                src: responseObject.src,
-                user: req.user,
-                submissionId: key,
-            });
-            return res.json(successResponse({
-                src: submission.src,
-                lang: submission.lang,
-                output: submission.output,
-                stderr: submission.error,
-                submission_id: submission.submissionId,
-                input: submission.input,
+                stderr: responseObject.stderr,
+                submission_id: key,
             }));
         }
     }

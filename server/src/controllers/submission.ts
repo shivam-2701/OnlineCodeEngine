@@ -78,25 +78,27 @@ export const getResult = async (req: Request, res: Response) => {
         lang: string;
         src: string;
       } = JSON.parse(status);
-      const removalResponse = await deleteFromRedis(key);
-      console.log(removalResponse);
-      const submission = await SubmissionModel.create({
-        input: "",
-        error: responseObject.stderr,
-        lang: responseObject.lang,
-        output: responseObject.output,
-        src: responseObject.src,
-        user: req.user,
-        submissionId: key,
-      });
+      await deleteFromRedis(key);
+
+      if (req.body.submission === true) {
+        const submission = await SubmissionModel.create({
+          input: "",
+          error: responseObject.stderr,
+          lang: responseObject.lang,
+          output: responseObject.output,
+          src: responseObject.src,
+          user: req.user,
+          submissionId: key,
+        });
+        console.log(submission);
+      }
       return res.json(
         successResponse({
-          src: submission.src,
-          lang: submission.lang,
-          output: submission.output,
-          stderr: submission.error,
-          submission_id: submission.submissionId,
-          input: submission.input,
+          src: responseObject.src,
+          lang: responseObject.lang,
+          output: responseObject.output,
+          stderr: responseObject.stderr,
+          submission_id: key,
         })
       );
     }
