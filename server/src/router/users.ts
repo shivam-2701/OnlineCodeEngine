@@ -8,7 +8,7 @@ router.post("/signup", signup);
 
 router.post("/create-session", createSession);
 
-router.post("/refresh", refreshToken);
+router.get("/refresh", refreshToken);
 
 router.use("/", submissionRouter);
 
