@@ -7,12 +7,12 @@ const extensions = {
     cpp: "cpp",
     c: "c",
     java: "java",
-    python3: "txt",
+    python: "txt",
 };
 const runCode = async (apiBody, channel, msg) => {
     try {
         client.set(apiBody.folder.toString(), "Processing");
-        const absolutePath = path.resolve('./temp');
+        const absolutePath = path.resolve("./temp");
         const command = `docker run --rm --mount type=bind,source=${absolutePath},target=/app,readonly=false -t compiler:v7a ${extensions[apiBody.lang]} ${apiBody.folder}/source.${extensions[apiBody.lang]} 5`;
         await fs.promises.writeFile(`./temp/${apiBody.folder}/output.txt`, "");
         const output = await execute(command);

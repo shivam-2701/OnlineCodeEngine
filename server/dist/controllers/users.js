@@ -29,7 +29,15 @@ export const signup = async (req, res) => {
                 password: authentication(salt, password),
             },
         });
-        return res.status(200).json(user).end();
+        const responseObj = {
+            accessToken: null,
+            user: {
+                username: user.username,
+                email: user.email,
+            },
+        };
+        console.log(user);
+        return res.status(200).json(responseObj).end();
     }
     catch (error) {
         console.log(error);
@@ -65,10 +73,22 @@ export const createSession = async (req, res) => {
         });
         user.authentication.refreshToken = REFRESH_TOKEN;
         await user.save();
+        console.log({
+            message: "Login successfully",
+            user: {
+                email: user.email,
+                username: user.username,
+            },
+            accessToken: JWTtoken,
+        });
         res
             .cookie("refresh", REFRESH_TOKEN, { httpOnly: true })
             .json({
             message: "Login successfully",
+            user: {
+                email: user.email,
+                username: user.username,
+            },
             accessToken: JWTtoken,
         })
             .end();
@@ -100,6 +120,10 @@ export const refreshToken = async (req, res) => {
         });
         return res.json({
             message: "Login successfully",
+            user: {
+                email: user.email,
+                username: user.username,
+            },
             accessToken: accessToken,
         });
     }

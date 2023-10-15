@@ -38,7 +38,17 @@ export const signup = async (req: Request, res: Response) => {
         password: authentication(salt, password),
       },
     });
-    return res.status(200).json(user).end();
+
+    const responseObj = {
+      accessToken: null,
+      user: {
+        username: user.username,
+        email: user.email,
+      },
+    };
+
+    console.log(user);
+    return res.status(200).json(responseObj).end();
   } catch (error) {
     console.log(error);
     return res.sendStatus(501);
@@ -89,7 +99,14 @@ export const createSession = async (req: Request, res: Response) => {
 
     user.authentication!.refreshToken = REFRESH_TOKEN;
     await user.save();
-
+    console.log({
+      message: "Login successfully",
+      user: {
+        email: user.email,
+        username: user.username,
+      },
+      accessToken: JWTtoken,
+    });
     res
       .cookie("refresh", REFRESH_TOKEN, { httpOnly: true })
       .json({

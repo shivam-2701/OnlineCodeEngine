@@ -17,7 +17,7 @@ export const setupPassportJWT = () => {
             return done(null, user!);
           })
           .catch((err) => {
-            return done(err);
+            return done(err, { status: 403 });
           });
       }
     )

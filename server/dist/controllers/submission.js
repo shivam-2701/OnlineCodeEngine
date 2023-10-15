@@ -40,7 +40,6 @@ export const getResult = async (req, res) => {
             submissionId: key,
         });
         if (existingSubmission) {
-            console.log(existingSubmission);
             return res.json(successResponse({
                 src: existingSubmission.src,
                 lang: existingSubmission.lang,
@@ -63,20 +62,19 @@ export const getResult = async (req, res) => {
             if (req.body.submission === true) {
                 const submission = await SubmissionModel.create({
                     input: "",
-                    error: responseObject.stderr,
+                    error: responseObject.status,
                     lang: responseObject.lang,
                     output: responseObject.output,
                     src: responseObject.src,
                     user: req.user,
                     submissionId: key,
                 });
-                console.log(submission);
             }
             return res.json(successResponse({
                 src: responseObject.src,
                 lang: responseObject.lang,
                 output: responseObject.output,
-                stderr: responseObject.stderr,
+                stderr: responseObject.status,
                 submission_id: key,
             }));
         }

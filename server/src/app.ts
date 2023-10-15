@@ -6,6 +6,9 @@ import { setupPassportJWT } from "./config/passport-jwt.js";
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import router from "./router/index.js";
+import { config } from "dotenv";
+
+config();
 const app = express();
 
 const port = 5000;
@@ -13,7 +16,13 @@ const port = 5000;
 // Setting up middleWare
 
 /*  Bodyparser*/
-app.use(cors());
+console.log(process.env.REACT_HOST);
+app.use(
+  cors({
+    origin: process.env.REACT_HOST,
+    credentials: true,
+  })
+);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
