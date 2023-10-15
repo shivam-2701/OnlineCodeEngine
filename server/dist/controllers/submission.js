@@ -1,17 +1,17 @@
 import { randomBytes } from "crypto";
 import { sendMessage } from "../config/rabbitmq.js";
-import { errorResponse, successResponse, getFromRedis, } from "../helper/utils.js";
-const lang = ["cpp", "javac", "python"];
+import { SubmissionModel } from "../models/submission.js";
+import { errorResponse, successResponse, getFromRedis, deleteFromRedis, } from "../helper/utils.js";
+const lang = ["cpp", "java", "python"];
+// Controller for submitting the code
 export const submitCode = async (req, res) => {
     try {
         let data = {
             src: req.body.src,
             input: req.body.stdin,
             lang: req.body.lang,
-            // 'timeout':req.body.timeout,
             folder: randomBytes(10).toString("hex"),
         };
-        // console.log("Submission Controller", data);
         if (!lang.includes(data.lang)) {
             res
                 .status(400)
@@ -32,9 +32,23 @@ export const submitCode = async (req, res) => {
         console.log("Error in submit endpoint contoller", error);
     }
 };
+// Controller for fetching submission result
 export const getResult = async (req, res) => {
     try {
         let key = req.params.id;
+        const existingSubmission = await SubmissionModel.findOne({
+            submissionId: key,
+        });
+        if (existingSubmission) {
+            return res.json(successResponse({
+                src: existingSubmission.src,
+                lang: existingSubmission.lang,
+                output: existingSubmission.output,
+                stderr: existingSubmission.error,
+                submission_id: existingSubmission.submissionId,
+                input: existingSubmission.input,
+            }));
+        }
         let status = await getFromRedis(key);
         if (status == null) {
             return res.json({ status: "Queued" });
@@ -43,8 +57,26 @@ export const getResult = async (req, res) => {
             return res.json({ status: "Processing" });
         }
         else {
-            status = JSON.parse(status);
-            return res.json(successResponse(status));
+            const responseObject = JSON.parse(status);
+            await deleteFromRedis(key);
+            if (req.body.submission === true) {
+                const submission = await SubmissionModel.create({
+                    input: "",
+                    error: responseObject.status,
+                    lang: responseObject.lang,
+                    output: responseObject.output,
+                    src: responseObject.src,
+                    user: req.user,
+                    submissionId: key,
+                });
+            }
+            return res.json(successResponse({
+                src: responseObject.src,
+                lang: responseObject.lang,
+                output: responseObject.output,
+                stderr: responseObject.status,
+                submission_id: key,
+            }));
         }
     }
     catch (error) {

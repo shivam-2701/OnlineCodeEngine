@@ -4,3 +4,7 @@ temp
 .vscode
 server.cert
 server.key
+
+.vscode
+server.cert
+server.key

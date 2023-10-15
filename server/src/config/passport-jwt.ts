@@ -14,10 +14,10 @@ export const setupPassportJWT = () => {
       (jwtPayload, done) => {
         return UserModel.findById(jwtPayload.id)
           .then((user) => {
-            return done(null, user);
+            return done(null, user!);
           })
           .catch((err) => {
-            return done(err);
+            return done(err, { status: 403 });
           });
       }
     )
